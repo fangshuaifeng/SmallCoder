@@ -1,0 +1,85 @@
+﻿using Architecture.Seedwork.Core;
+using Architecture.Seedwork.Security;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using {{ _SpaceName }}.API.Application.Commands;
+
+namespace {{ _SpaceName }}.API.Controllers
+{
+    /// <summary>
+    /// {{ _Description }}
+    /// </summary>
+    [Authorize]
+    [Route("[controller]")]
+    [ApiController]
+    [PermissionAuthorize(Permission.RequiredChild)]
+    public class {{ _EntityName }}Controller : ControllerBase
+    {
+        IMediator _mediator;
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        public {{ _EntityName }}Controller(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
+        /// <summary>
+        /// 新增
+        /// </summary>
+        [HttpPost]
+        [PermissionAuthorize(Permission.Create)]
+        [PermissionAuthorize(Permission.Manager)]
+        public async Task<Result> Create([FromBody] {{ _EntityName }}CreateCommand cmd)
+        {
+            return await _mediator.Send(cmd, HttpContext.RequestAborted);
+        }
+
+        /// <summary>
+        /// 修改
+        /// </summary>
+        [HttpPut]
+        [PermissionAuthorize(Permission.Update)]
+        [PermissionAuthorize(Permission.Manager)]
+        public async Task<Result> Update([FromBody] {{ _EntityName }}UpdateCommand cmd)
+        {
+            return await _mediator.Send(cmd, HttpContext.RequestAborted);
+        }
+
+        /// <summary>
+        /// 删除
+        /// </summary>
+        [HttpDelete]
+        [PermissionAuthorize(Permission.Delete)]
+        [PermissionAuthorize(Permission.Manager)]
+        public async Task<Result> Delete([FromBody] {{ _EntityName }}DeleteCommand cmd)
+        {
+            return await _mediator.Send(cmd, HttpContext.RequestAborted);
+        }
+
+        /// <summary>
+        /// 批量删除
+        /// </summary>
+        [HttpDelete("batch")]
+        [PermissionAuthorize(Permission.Delete)]
+        [PermissionAuthorize(Permission.Manager)]
+        public async Task<Result> Delete([FromBody] {{ _EntityName }}DeleteBatchCommand cmd)
+        {
+            return await _mediator.Send(cmd, HttpContext.RequestAborted);
+        }
+
+        /// <summary>
+        /// 导入
+        /// </summary>
+        [HttpPost("import")]
+        [PermissionAuthorize(Permission.Create)]
+        [PermissionAuthorize(Permission.Manager)]
+        public async Task<Result> Import([FromBody] {{ _EntityName }}ImportCommand cmd)
+        {
+            return await _mediator.Send(cmd, HttpContext.RequestAborted);
+        }
+    }
+}

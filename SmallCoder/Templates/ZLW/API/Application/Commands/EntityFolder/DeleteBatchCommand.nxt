@@ -1,0 +1,45 @@
+﻿using Architecture.Seedwork.Core;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Zlw.API.Common.Verification;
+
+namespace {{ _SpaceName }}.API.Application.Commands
+{
+    /// <summary>
+    /// {{ _Description }}批量删除模型
+    /// </summary>
+    public class {{ _EntityName }}DeleteBatchCommand : AutoVerificationCommandBase, IRequest<Result>
+    {
+        public {{ _EntityName }}DeleteBatchCommand()
+        {
+            base.Register<{{ _EntityName }}DeleteBatchValidate>();
+        }
+        /// <summary>
+        /// 明细
+        /// </summary>
+        [Required]
+        public List<{{ _EntityName }}DeleteItem> Details { get; set; }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class {{ _EntityName }}DeleteItem
+    {
+        /// <summary>
+        /// 流水号
+        /// </summary>
+        [Required]
+        public string NumericalOrder { get; set; }
+
+        /// <summary>
+        /// 明细流水号
+        /// </summary>
+        [Required]
+        [Repetition]
+        public string NumericalOrderDetail { get; set; }
+    }
+}
+

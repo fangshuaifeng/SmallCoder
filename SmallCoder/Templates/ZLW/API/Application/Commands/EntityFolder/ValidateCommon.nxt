@@ -1,0 +1,92 @@
+﻿using Architecture.Seedwork.Core;
+using Architecture.Seedwork.Security;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using {{ _SpaceName }}.Domain;
+using {{ _SpaceName }}.ErrorCodeEnum;
+using {{ _SpaceName }}.Infrastructure;
+using Z.Production.Common.Infrastructure.Interfaces;
+using Zlw.API.Common.Verification;
+using Zlw.Common.Enum;
+
+namespace {{ _SpaceName }}.API.Application.Commands
+{
+    public abstract class {{ _EntityName }}ValidateCommon<T> : CommandVerificationBase<T> where T : class
+    {
+        protected readonly IIdentityService _identityService;
+        protected readonly IMsTransferHourseRepository _transferHourseRepository;
+        protected readonly IMsTransferHourseDetailRepository _transferHourseDetailRepository;
+        protected readonly IMsTransferHourseDetailInfoRepository _transferHourseDetailInfoRepository;
+        protected readonly IBizReviweRepository _bizReviweRepository;
+        protected readonly BreedingContext _breedingContext;
+
+        public {{ _EntityName }}ValidateCommon(
+              IIdentityService _identityService
+            , IMsTransferHourseRepository _transferHourseRepository
+            , IMsTransferHourseDetailRepository _transferHourseDetailRepository
+            , IMsTransferHourseDetailInfoRepository _transferHourseDetailInfoRepository
+            , IBizReviweRepository _bizReviweRepository
+            , BreedingContext _breedingContext
+            )
+        {
+            this._identityService = _identityService;
+            this._transferHourseRepository = _transferHourseRepository;
+            this._transferHourseDetailRepository = _transferHourseDetailRepository;
+            this._transferHourseDetailInfoRepository = _transferHourseDetailInfoRepository;
+            this._bizReviweRepository = _bizReviweRepository;
+            this._breedingContext = _breedingContext;
+        }
+
+        /// <summary>
+        /// 是否有权限
+        /// </summary>
+        protected void CheckHasAuthority(string NumericalOrder)
+        {
+            var masterData = this._transferHourseRepository.ODataQuery(a => a.NumericalOrder == NumericalOrder).FirstOrDefault();
+            if (masterData != null)
+            {
+                bool isManager = _identityService.IsPermisson(Permission.Manager);
+                //非制单人不允许删除（除管理员外）
+                if (!isManager && masterData.CreatedOwnerId != _identityService.UserId)
+                {
+                    this.CurrentErrorRow().AddColumn(new ErrorColumn(CommonErrorCode.NoCreator.GetIntValue(), 0, nameof(NumericalOrder), NumericalOrder));
+                }
+            }
+            else
+            {
+                this.ErrorRow.AddColumn(new ErrorColumn(ErrorCode.NoContent.GetIntValue(), 0, nameof(NumericalOrder), NumericalOrder).AddFormat("$ENTITY.NumericalOrder", NumericalOrder));
+            }
+        }
+
+        /// <summary>
+        /// 校验是否审核
+        /// </summary>
+        /// <param name="NumericalOrder"></param>
+        protected void CheckHasReview(string NumericalOrder)
+        {
+            var isExist = _bizReviweRepository.AnyReview(NumericalOrder);
+            if (isExist)
+            {
+                this.ErrorRow.AddColumn(new ErrorColumn(CommonErrorCode.Checked.GetIntValue(), 0, nameof(NumericalOrder), NumericalOrder));
+            }
+        }
+        
+        /// <summary>
+        /// 建账日期校验
+        /// </summary>
+        protected void CheckBeginDate(DateTime DataDate)
+        {
+            var beginDate = _breedingContext.BizPigFarm.Where(w => w.PigFarmId == _identityService.ChildEnterpriseId).Select(s => (DateTime?)s.Begindate).FirstOrDefault();
+            if (beginDate == null || DataDate < beginDate)
+            {
+                this.CurrentErrorRow().AddColumn(new ErrorColumn(CommonErrorCode.LessInitialDate.GetIntValue(), 0, nameof(DataDate), DataDate)
+                    .AddFormat("$ENTITY." + nameof(DataDate), DataDate.ToString("yyyy-MM-dd"))
+                    .AddFormat("$BeginDate", beginDate?.ToString("yyyy-MM-dd"))
+                    .AddFormat("$DataDate", DataDate.ToString("yyyy-MM-dd"))
+                    );
+            }
+        }
+    }
+}

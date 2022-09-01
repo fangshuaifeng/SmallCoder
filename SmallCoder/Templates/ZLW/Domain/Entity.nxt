@@ -1,0 +1,23 @@
+﻿using System;
+using System.Text;
+using System.Collections.Generic;
+using Architecture.Seedwork.Domain;
+
+namespace {{ _SpaceName }}.Domain
+{
+    public class {{ _EntityName }} : Entity
+    {
+        public {{ _EntityName }}()
+        {
+            
+        }
+
+        {%- for model in _Columns -%}
+        /// <summary>
+        /// {{ model.comment }}
+        /// </summary>
+        public {{ model.data_type }} {{ model.name }} { get; set; }
+
+        {%- endfor -%}
+    }
+}

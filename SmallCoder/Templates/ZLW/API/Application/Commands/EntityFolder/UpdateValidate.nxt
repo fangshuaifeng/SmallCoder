@@ -1,0 +1,96 @@
+﻿using Architecture.Seedwork.Core;
+using Architecture.Seedwork.Security;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using {{ _SpaceName }}.Domain;
+using {{ _SpaceName }}.ErrorCodeEnum;
+using {{ _SpaceName }}.Infrastructure;
+using Z.Production.Common.Domains;
+using Z.Production.Common.Infrastructure.Interfaces;
+using Zlw.API.Common.Verification;
+using Zlw.Common.Enum;
+
+namespace {{ _SpaceName }}.API.Application.Commands
+{
+    public class {{ _EntityName }}UpdateValidate : {{ _EntityName }}ValidateCommon<{{ _EntityName }}UpdateCommand>
+    {
+        public {{ _EntityName }}UpdateValidate(
+              IIdentityService _identityService
+            , IMsTransferHourseRepository _transferHourseRepository
+            , IMsTransferHourseDetailRepository _transferHourseDetailRepository
+            , IMsTransferHourseDetailInfoRepository _transferHourseDetailInfoRepository
+            , IBizReviweRepository _bizReviweRepository
+            , BreedingContext _breedingContext
+            ) : base(_identityService, _transferHourseRepository, _transferHourseDetailRepository, _transferHourseDetailInfoRepository, _bizReviweRepository, _breedingContext)
+        {
+        }
+
+        public override void Verify({{ _EntityName }}UpdateCommand command)
+        {
+            CommonVerificationHelper.CheckData(command, this.CurrentErrorRow());
+            this.RaiseException();
+            RepetitionVerification.Verify(command.Details.Where(w => w.Target != TargetType.Delete), this.CurrentErrorRow());
+            this.RaiseException();
+
+            // 校验权限
+            this.CheckHasAuthority(command.NumericalOrder);
+            this.RaiseException();
+            // 校验审核
+            this.CheckHasReview(command.NumericalOrder);
+            this.RaiseException();
+
+            foreach (var item in command.Details)
+            {
+                this.NewRow();
+                CommonVerificationHelper.CheckData(item, this.ErrorRow);
+            }
+
+            this.RaiseException();
+
+            BusinessCheck(command);
+        }
+
+        private void BusinessCheck({{ _EntityName }}UpdateCommand cmd)
+        {
+            var numericalOrderDetails = cmd.Details.Where(w => w.Target != TargetType.Create).Select(s => s.NumericalOrderDetail).ToList();
+            
+            
+            this.NewRecord();
+            foreach (var item in cmd.Details)
+            {
+                this.NewRow();
+
+                switch (item.Target)
+                {
+                    case TargetType.Create:
+                        {
+                            
+                        }
+                        break;
+                    case TargetType.Update:
+                        {
+                            
+                        }
+                        break;
+                    case TargetType.Delete:
+                        {
+                            
+                        }
+                        break;
+                    case TargetType.Unchang:
+                        {
+                            
+                        }
+                        break;
+                }
+                
+                
+            }
+
+            this.RaiseException();
+        }
+    }
+}

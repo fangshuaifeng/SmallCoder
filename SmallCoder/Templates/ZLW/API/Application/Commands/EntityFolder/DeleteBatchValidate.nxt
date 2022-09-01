@@ -1,0 +1,72 @@
+﻿using Architecture.Seedwork.Core;
+using Architecture.Seedwork.Security;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using {{ _SpaceName }}.Domain;
+using {{ _SpaceName }}.ErrorCodeEnum;
+using {{ _SpaceName }}.Infrastructure;
+using Z.Production.Common.Infrastructure.Interfaces;
+using Zlw.API.Common.Verification;
+using Microsoft.EntityFrameworkCore;
+using Zlw.Common.Enum;
+
+namespace {{ _SpaceName }}.API.Application.Commands
+{
+    public class {{ _EntityName }}DeleteBatchValidate : {{ _EntityName }}ValidateCommon<{{ _EntityName }}DeleteBatchCommand>
+    {
+        public {{ _EntityName }}DeleteBatchValidate(
+              IIdentityService _identityService
+            , IMsTransferHourseRepository _transferHourseRepository
+            , IMsTransferHourseDetailRepository _transferHourseDetailRepository
+            , IMsTransferHourseDetailInfoRepository _transferHourseDetailInfoRepository
+            , IBizReviweRepository _bizReviweRepository
+            , BreedingContext _breedingContext
+            ) : base(_identityService, _transferHourseRepository, _transferHourseDetailRepository, _transferHourseDetailInfoRepository, _bizReviweRepository, _breedingContext)
+        {
+        }
+
+        public override void Verify({{ _EntityName }}DeleteBatchCommand command)
+        {
+            CommonVerificationHelper.CheckData(command, this.CurrentErrorRow());
+            this.RaiseException();
+            RepetitionVerification.Verify(command.Details, this.CurrentErrorRow());
+            this.RaiseException();
+
+            foreach (var item in command.Details)
+            {
+                this.NewRow();
+
+                //是否有权限
+                this.CheckHasAuthority(item.NumericalOrder);
+                if (this.ErrorRow.Any()) break;
+                // 校验审核
+                this.CheckHasReview(item.NumericalOrder);
+                if (this.ErrorRow.Any()) break;
+            }
+
+            this.RaiseException();
+
+            this.BusinessCheck(command);
+        }
+
+        private void BusinessCheck({{ _EntityName }}DeleteBatchCommand command)
+        {
+            var numericalOrderDetails = command.Details.Select(s => s.NumericalOrderDetail).Distinct().ToList();
+            
+
+            this.NewRecord();
+            foreach (var item in command.Details)
+            {
+                this.NewRow();
+
+                
+
+                if (this.ErrorRow.Any()) break;
+            }
+
+            this.RaiseException();
+        }
+    }
+}

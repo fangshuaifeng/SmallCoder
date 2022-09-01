@@ -1,0 +1,22 @@
+﻿
+// ---------------- 注入校验器 ------------------
+
+// {{ _Description }}
+services.AddScoped<{{ _EntityName }}CreateValidate>();
+services.AddScoped<{{ _EntityName }}UpdateValidate>();
+services.AddScoped<{{ _EntityName }}DeleteValidate>();
+services.AddScoped<{{ _EntityName }}DeleteBatchValidate>();
+services.AddScoped<{{ _EntityName }}ImportValidate>();
+
+
+
+// ---------------- 注入OData ------------------
+
+builder.EntitySet<{{ _EntityName }}Expand>("{{ _EntityName }}OData").EntityType.HasKey(p => p.NumericalOrderDetail);
+
+
+// ---------------- 注入上下文Expand ------------------
+
+public virtual DbSet<{{ _EntityName }}Expand> {{ _EntityName }}Expand { get; set; }
+
+

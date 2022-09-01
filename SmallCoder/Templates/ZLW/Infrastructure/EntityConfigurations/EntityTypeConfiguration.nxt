@@ -1,0 +1,37 @@
+﻿using System;
+using System.Text;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using {{ _SpaceName }}.Domain;
+
+namespace {{ _SpaceName }}.Infrastructure.EntityConfigurations
+{
+    public class {{ _EntityName }}EntityTypeConfiguration : IEntityTypeConfiguration<{{ _EntityName }}>
+    {
+        public void Configure(EntityTypeBuilder<{{ _EntityName }}> entity)
+        {
+            entity.ToTable("{{ _TableName }}");
+
+    {%- for model in _Columns -%}
+        {%- if model.is_pri -%}
+            entity.HasKey(e => e.{{ model.name }}).HasName("PRIMARY");
+        {%- else -%}
+            entity.Property(e => e.{{ model.name }}).HasColumnType("{{ model.name }}")
+                .HasColumnType("{{ model.column_type }}")
+        {%- endif -%}
+        {%- if model.dataType != "long" -%}
+                .HasColumnType("{{ model.comment }}");
+        {%- else -%}
+                .HasColumnType("{{ model.comment }}")
+                .HasConversion(new ValueConverter<string, long>(model => Convert.ToInt64(model), store => store.ToString()));
+        {%- endif -%}
+
+    {%- endfor -%}
+
+
+            // entity.Ignore(e => e.RecordID);
+        }
+    }
+}

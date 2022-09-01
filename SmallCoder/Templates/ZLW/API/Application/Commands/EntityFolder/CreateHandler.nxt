@@ -1,0 +1,96 @@
+﻿using Architecture.Common.NumericalOrderCreator;
+using Architecture.Common.Z.NumberCreator;
+using Architecture.Seedwork.Core;
+using Architecture.Seedwork.Infrastructure;
+using Architecture.Seedwork.Security;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Z.Basic.Synchronization.DomainEvents;
+using Z.Basic.Synchronization.Infrastructure;
+using {{ _SpaceName }}.Domain.Events;
+using {{ _SpaceName }}.Infrastructure;
+using {{ _SpaceName }}.Infrastructure.Repository.Interfaces;
+using Z.Production.Common.DomainEvents;
+using Z.Production.Common.DomainEvents.BatchAge;
+using Z.Production.Common.Domains;
+using Z.Production.Common.Infrastructure.Interfaces;
+using Zlw.Common.Enum;
+
+namespace {{ _SpaceName }}.API.Application.Commands
+{
+    public class {{ _EntityName }}CreateHandler : IRequestHandler<{{ _EntityName }}CreateCommand, Result>
+    {
+        readonly IIdentityService _identityService;
+        readonly NumericalOrderCreator _numericalOrderCreator;
+        readonly NumberCreator<BreedingContext> _numberCreator;
+        readonly ILogger<{{_EntityName }}CreateHandler> _logger;
+        readonly IMsTransferHourseRepository _transferHourseRepository;
+        readonly QlwBusinessContext _qlwBusinessContext;
+
+        #region 初始化
+
+        public {{ _EntityName }}CreateHandler(
+              IIdentityService _identityService
+            , NumericalOrderCreator _numericalOrderCreator
+            , NumberCreator<BreedingContext> _numberCreator
+            , ILogger<{{ _EntityName }}CreateHandler> _logger
+            , IMsTransferHourseRepository _transferHourseRepository
+            , QlwBusinessContext _qlwBusinessContext
+            )
+        {
+            this._logger = _logger;
+            this._identityService = _identityService;
+            this._numberCreator = _numberCreator;
+            this._numericalOrderCreator = _numericalOrderCreator;
+            this._transferHourseRepository = _transferHourseRepository;
+            this._qlwBusinessContext = _qlwBusinessContext;
+        }
+
+        #endregion
+
+        public async Task<Result> Handle({{ _EntityName }}CreateCommand request, CancellationToken cancellationToken)
+        {
+            var result = new Result();
+            try
+            {
+                var numericalOrders = await _numericalOrderCreator.CreateAsync(request.Details.Count * 2 + 1);
+                var number = _numberCreator.Create<MsTransferHourse>(o => o.DataDate, o => o.Number, request.DataDate, o => o.EnterpriseId == _identityService.EnterpriseId);
+                var numericalOrder = numericalOrders.Take();
+
+                var index = 1;
+                foreach (var item in request.Details)
+                {
+                    var numericalOrderDetail = numericalOrders.Take();
+                    
+
+                    index++;
+                }
+
+
+                var isSuccess = await _transferHourseRepository.UnitOfWork.AsEFContext().UseCombinedTranscantion(_qlwBusinessContext).SaveEntitiesAsync(cancellationToken);
+                if (isSuccess)
+                {
+                    result.code = ErrorCode.Success.GetIntValue();
+                    result.data = new { numericalOrder, number };
+                }
+            }
+            catch (ErrorCodeExecption ex)
+            {
+                ex.MapToResult(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{{ _Description }}新增异常，入参：{ request?.ToJson() }");
+                result.code = ErrorCode.ServerBusy.GetIntValue();
+                result.msg = null;
+                result.data = null;
+            }
+            return result;
+        }
+    }
+}

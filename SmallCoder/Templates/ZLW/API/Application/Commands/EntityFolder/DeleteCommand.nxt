@@ -1,0 +1,27 @@
+﻿using Architecture.Seedwork.Core;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Zlw.API.Common.Verification;
+
+namespace {{ _SpaceName }}.API.Application.Commands
+{
+    /// <summary>
+    /// {{ _Description }}删除模型
+    /// </summary>
+    public class {{ _EntityName }}DeleteCommand : AutoVerificationCommandBase, IRequest<Result>
+    {
+        public {{ _EntityName }}DeleteCommand()
+        {
+            base.Register<{{ _EntityName }}DeleteValidate>();
+        }
+        /// <summary>
+        /// 流水号
+        /// </summary>
+        [Required]
+        [NumericalOrder]
+        public string NumericalOrder { get; set; }
+    }
+}

@@ -1,0 +1,81 @@
+﻿using System;
+using System.Text;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace {{ _SpaceName }}.Domain
+{
+    /// <summary>
+    /// {{ _Description }}
+    /// </summary>
+    public class {{ _EntityName }}Expand
+    {
+        /// <summary>
+        /// 明细流水号
+        /// </summary>
+        [Key]
+        public string NumericalOrderDetail { get; set; }
+        /// <summary>
+        /// 流水号
+        /// </summary>
+        public string NumericalOrder { get; set; }
+        /// <summary>
+        /// 单据号
+        /// </summary>
+        public long Number { get; set; }
+        /// <summary>
+        /// 制单日期
+        /// </summary>
+        public DateTime DataDate { get; set; }
+
+        
+        /// <summary>
+        /// 备注
+        /// </summary>
+        public string Remarks { get; set; }
+        /// <summary>
+        /// 负责人ID
+        /// </summary>
+        public string PersonID { get; set; }
+        /// <summary>
+        /// 负责人
+        /// </summary>
+        public string PersonName { get; set; }
+        /// <summary>
+        /// 创建人ID
+        /// </summary>
+        public string CreatedOwnerID { get; set; }
+        /// <summary>
+        /// 创建人
+        /// </summary>
+        public string CreatedOwnerName { get; set; }
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        public DateTime CreatedDate { get; set; }
+        /// <summary>
+        /// 操作人ID
+        /// </summary>
+        public string OwnerID { get; set; }
+        /// <summary>
+        /// 操作人
+        /// </summary>
+        public string OwnerName { get; set; }
+        /// <summary>
+        /// 修改时间
+        /// </summary>
+        public DateTime ModifiedDate { get; set; }
+        /// <summary>
+        /// 审核人ID
+        /// </summary>
+        public string AuditID { get; set; }
+        /// <summary>
+        /// 审核人
+        /// </summary>
+        public string AuditName { get; set; }
+        /// <summary>
+        /// 审核时间
+        /// </summary>
+        public DateTime? AuditDate { get; set; }
+    }
+}

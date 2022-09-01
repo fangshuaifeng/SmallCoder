@@ -1,0 +1,66 @@
+﻿using Architecture.Seedwork.Security;
+using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using {{ _SpaceName }}.Domain;
+using {{ _SpaceName }}.Infrastructure;
+using Zlw.Common.Enum;
+
+namespace {{ _SpaceName }}.API.Controllers.OData
+{
+    /// <summary>
+    /// {{ _Description }}
+    /// </summary>
+    [Authorize]
+    [PermissionAuthorize(Permission.RequiredChild)]
+    public class {{ _EntityName }}ODataController : Controller
+    {
+        readonly IIdentityService _identityService;
+        readonly BreedingReadPrivateContext _context;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="_identityService"></param>
+        /// <param name="_context"></param>
+        public {{ _EntityName }}ODataController(
+            IIdentityService _identityService,
+            BreedingReadPrivateContext _context)
+        {
+            this._identityService = _identityService;
+            this._context = _context;
+        }
+
+        /// <summary>
+        /// 获取列表
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [EnableQuery]
+        [PermissionAuthorize(Permission.Retrieve)]
+        [PermissionAuthorize(Permission.Manager)]
+        public IQueryable<{{ _EntityName }}Expand> Get()
+        {
+            return _context.{{ _EntityName }}Expand.FromSqlInterpolated($@"
+
+            ");
+        }
+
+        /// <summary>
+        /// 获取指定数据
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [EnableQuery]
+        [PermissionAuthorize(Permission.Retrieve)]
+        [PermissionAuthorize(Permission.Manager)]
+        public IQueryable<{{ _EntityName }}Expand> Get(string key)
+        {
+            key = Request.RouteValues["key"].ToString();
+            return this.Get().Where(p => p.NumericalOrderDetail == key.SafeString());
+        }
+    }
+}

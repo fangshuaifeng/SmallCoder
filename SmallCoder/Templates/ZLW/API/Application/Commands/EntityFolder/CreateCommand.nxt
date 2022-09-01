@@ -1,0 +1,56 @@
+﻿using System;
+using MediatR;
+using Architecture.Seedwork.Core;
+using System.Collections.Generic;
+using Zlw.API.Common.Verification;
+using Zlw.Common.Enum;
+
+namespace {{ _SpaceName }}.API.Application.Commands
+{
+    /// <summary>
+    /// {{ _Description }}新增模型
+    /// </summary>
+    public class {{ _EntityName }}CreateCommand : AutoVerificationCommandBase, IRequest<Result>
+    {
+        public {{ _EntityName }}CreateCommand()
+        {
+            base.Register<{{ _EntityName }}CreateValidate>();
+        }
+
+        /// <summary>
+        /// 单据日期
+        /// </summary>
+        public DateTime DataDate { get; set; }
+        /// <summary>
+        /// 负责人
+        /// </summary>
+        public string PersonID { get; set; }
+        /// <summary>
+        /// 备注
+        /// </summary>
+        [String(MaxLength = 512)]
+        public string Remarks { get; set; }
+
+        /// <summary>
+        /// 明细
+        /// </summary>
+        [Required]
+        public List<{{ _EntityName }}DetailDto > Details { get; set; }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class {{ _EntityName }}DetailDto
+    {
+        /// <summary>
+        /// 详情流水号
+        /// </summary>
+        public string NumericalOrderDetail { get; set; }
+        /// <summary>
+        /// 1：新增，2：修改，3：删除，0：UnChange
+        /// </summary>
+        public TargetType Target { get; set; }
+
+
+    }
+}

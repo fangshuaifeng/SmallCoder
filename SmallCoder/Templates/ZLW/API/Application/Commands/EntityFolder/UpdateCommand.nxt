@@ -1,0 +1,23 @@
+﻿using Zlw.API.Common.Verification;
+
+namespace {{ _SpaceName }}.API.Application.Commands
+{
+    /// <summary>
+    /// {{ _Description }}修改模型
+    /// </summary>
+    public class {{ _EntityName }}UpdateCommand : {{ _EntityName }}CreateCommand
+    {
+        public {{ _EntityName }}UpdateCommand()
+        {
+            //注册校验程序
+            base.Clear();
+            base.Register<{{ _EntityName }}UpdateValidate>();
+        }
+        /// <summary>
+        /// 流水号
+        /// </summary>
+        [Required]
+        [NumericalOrder]
+        public string NumericalOrder { get; set; }
+    }
+}

@@ -1,0 +1,65 @@
+﻿using Architecture.Seedwork.Core;
+using Architecture.Seedwork.Security;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using {{ _SpaceName }}.Domain;
+using {{ _SpaceName }}.ErrorCodeEnum;
+using {{ _SpaceName }}.Infrastructure;
+using Z.Production.Common.Domains;
+using Z.Production.Common.Infrastructure.Interfaces;
+using Zlw.API.Common.Verification;
+using Zlw.Common.Enum;
+
+namespace {{ _SpaceName }}.API.Application.Commands
+{
+    public class {{ _EntityName }}ImportValidate : {{ _EntityName }}ValidateCommon<{{ _EntityName }}ImportCommand>
+    {
+        public {{ _EntityName }}ImportValidate(
+              IIdentityService _identityService
+            , IMsTransferHourseRepository _transferHourseRepository
+            , IMsTransferHourseDetailRepository _transferHourseDetailRepository
+            , IMsTransferHourseDetailInfoRepository _transferHourseDetailInfoRepository
+            , IBizReviweRepository _bizReviweRepository
+            , BreedingContext _breedingContext
+            ) : base(_identityService, _transferHourseRepository, _transferHourseDetailRepository, _transferHourseDetailInfoRepository, _bizReviweRepository, _breedingContext)
+        {
+        }
+
+        public override void Verify({{ _EntityName }}ImportCommand command)
+        {
+            ImportVerificationHelper.CheckHeaderData(command.ExcelLines, this.ErrorRecord);
+            this.RaiseException();
+
+            foreach (var item in command.ExcelLines)
+            {
+                this.NewRow();
+                ImportVerificationHelper.CheckData(item, this.ErrorRow);
+            }
+
+            this.RaiseException();
+
+            BusinessCheck(command);
+        }
+
+        private void BusinessCheck({{ _EntityName }}ImportCommand cmd)
+        {
+            var firstLine = cmd.ExcelLines.First();
+            var dataDate = firstLine.DataDate.ToDateTime().Value;
+
+
+
+            this.NewRecord();
+            foreach (var item in cmd.ExcelLines)
+            {
+                this.NewRow();
+
+                
+            }
+
+            this.RaiseException();
+        }
+    }
+}

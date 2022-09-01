@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmallCoder", "SmallCoder\SmallCoder.csproj", "{AC7B8EFE-0D49-454D-BEC5-A0713118D70D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AC7B8EFE-0D49-454D-BEC5-A0713118D70D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC7B8EFE-0D49-454D-BEC5-A0713118D70D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC7B8EFE-0D49-454D-BEC5-A0713118D70D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AC7B8EFE-0D49-454D-BEC5-A0713118D70D}.Debug|x86.Build.0 = Debug|Any CPU
+		{AC7B8EFE-0D49-454D-BEC5-A0713118D70D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC7B8EFE-0D49-454D-BEC5-A0713118D70D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC7B8EFE-0D49-454D-BEC5-A0713118D70D}.Release|x86.ActiveCfg = Release|Any CPU
+		{AC7B8EFE-0D49-454D-BEC5-A0713118D70D}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9B8EB024-E081-4E70-95AD-DDB483DD6CCF}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,55 @@
+﻿using Architecture.Seedwork.Core;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using Zlw.API.Common.Verification;
+
+namespace {{ _SpaceName }}.API.Application.Commands
+{
+    /// <summary>
+    /// {{ _Description }}导入模型
+    /// </summary>
+    public class {{ _EntityName }}ImportCommand : AutoVerificationCommandBase, IRequest<Result>
+    {
+        public {{ _EntityName }}ImportCommand()
+        {
+            this.Register<{{ _EntityName }}ImportValidate>();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Required]
+        public List<{{ _EntityName }}ImportDto> ExcelLines { get; set; }
+    }
+
+    /// <summary>
+    /// 导入项模型
+    /// </summary>
+    public class {{ _EntityName }}ImportDto
+    {
+        /// <summary>
+        /// 负责人
+        /// </summary>
+        [HeaderField]
+        [Unique]
+        [Person]
+        public string PersonID { get; set; }
+        /// <summary>
+        /// 单据日期
+        /// </summary>
+        [HeaderField]
+        [Required]
+        [DateTime]
+        [Unique(Type = DataType.DateTime)]
+        public string DataDate { get; set; }
+        internal DateTime _DataDate => this.DataDate.ToDateTime() ?? DateTime.Now.Date;
+        /// <summary>
+        /// 备注
+        /// </summary>
+        [HeaderField]
+        [Unique]
+        public string Remarks { get; set; }
+        internal string _Remakrs => this.Remarks ?? string.Empty;
+
+    }
+}
