@@ -11,8 +11,8 @@
 > `Entity.nxt`文件是默认的实体文件，生成时会被替换成`实体名称`文件
 > `{{ Entity }}`标签用于展示内容、`{% if %}`标签用于逻辑控制、`raw`标签输出不做解析<span style="color:red;">(注)</span>
 
-[主界面](https://blog.renzicu.com/2022/small-coder/show_1.png)
-[模板编辑页面](https://blog.renzicu.com/2022/small-coder/show_2.png)
+![主界面](https://blog.renzicu.com/2022/small-coder/show_1.png)
+![模板编辑页面](https://blog.renzicu.com/2022/small-coder/show_2.png)
 
 > 连接数据库（`Mysql`）仅为了动态生成`实体、字段`，其它操作均在本地完成可放心使用。
 
