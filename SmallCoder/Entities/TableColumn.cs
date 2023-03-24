@@ -38,5 +38,13 @@
         /// 数值精度
         /// </summary>
         public long? number_scale { get; set; }
+        /// <summary>
+        /// 是否自增列
+        /// </summary>
+        public bool is_auto_increment { get; set; }
+        /// <summary>
+        /// 是否可空
+        /// </summary>
+        public bool is_nullable { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DotLiquid;
+using SmallCoder.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,17 +14,47 @@ namespace SmallCoder
 {
     public partial class MainForm : Form
     {
+        Form tempForm;
         private List<TableColumn> dataColumns = new List<TableColumn>();
         private AppConfig _appConfig;
         private AppConnItem _currentSelItem;
         private int _MinWidth = 460;
-        private int _MaxWidth = 777;
-        Form tempForm;
+        private int _MaxWidth = 776;
+        private readonly WatchValue<bool> watchValue = new WatchValue<bool>();
+        private bool loadding
+        {
+            get
+            {
+                return watchValue.Content;
+            }
+            set
+            {
+                watchValue.Content = value;
+            }
+        }
 
         public MainForm()
         {
+            this.watchValue.Update += WatchValue_Update;
             InitializeComponent();
             this.getDpi();
+        }
+
+        private void RestStatusInfo(string str = null)
+        {
+            this.tss_lbl.Text = str ?? "已就绪";
+        }
+
+        private void WatchValue_Update(bool old, bool now)
+        {
+            this.RestStatusInfo(now ? "加载中..." : null);
+
+            this.cbDbCon.Enabled = !now;
+            this.cbDb.Enabled = !now;
+            this.cbEntity.Enabled = !now;
+            this.btn_Generate.Enabled = !now;
+            this.btnConf.Enabled = !now;
+            this.lbl_Refresh.Enabled = !now;
         }
 
         private void getDpi()
@@ -50,10 +81,24 @@ namespace SmallCoder
         private void loadAndRefreshConfig()
         {
             _appConfig = Utils.LoadConfFile();
-            this.cbDbCon.DataSource = _appConfig.connections;
-            this._currentSelItem = _appConfig.connections.FirstOrDefault(f => f.selected) ?? _appConfig.connections.FirstOrDefault() ?? new AppConnItem();
             this.txtSpaceName.Text = _appConfig.spaceName;
-            this.sameRefreshDbAndTable();
+            this._currentSelItem = _appConfig.connections.FirstOrDefault(f => f.selected) ?? _appConfig.connections.FirstOrDefault() ?? new AppConnItem();
+            this.cbDbCon.SelectedValueChanged -= new System.EventHandler(this.cbDbCon_SelectedIndexChanged);
+            this.cbDbCon.DataSource = _appConfig.connections;
+            this.cbDbCon.DisplayMember = nameof(AppConnItem.name);
+            this.cbDbCon.ValueMember = nameof(AppConnItem.id);
+            if (this._currentSelItem.selected)
+            {
+                this.cbDbCon.SelectedIndex = _appConfig.connections.FindIndex(f => f.selected);
+            }
+            this.cbDbCon.SelectedValueChanged += new System.EventHandler(this.cbDbCon_SelectedIndexChanged);
+            Task.Run(() =>
+            {
+                this.BeginInvoke(new Action(() =>
+                {
+                    this.sameRefreshDbAndTable();
+                }));
+            });
         }
 
         /// <summary>
@@ -89,6 +134,9 @@ namespace SmallCoder
 
         private void sameRefreshDbAndTable()
         {
+            this.cbDb.DataSource = null;
+            this.cbEntity.DataSource = null;
+            this.txtEntityCustom.Text = null;
             this.bind_Database_DropdownList(() =>
             {
                 this.bind_Table_DropdownList();
@@ -97,13 +145,18 @@ namespace SmallCoder
 
         private void bind_Database_DropdownList(Action callback)
         {
-            if (string.IsNullOrWhiteSpace(this._currentSelItem?.conn)) return;
+            this.loadding = true;
+            if (string.IsNullOrWhiteSpace(this._currentSelItem?.conn))
+            {
+                this.loadding = false;
+                return;
+            }
 
             Task.Run(() =>
             {
                 try
                 {
-                    return new SqlUtils(this._currentSelItem.conn).getAllDatabase();
+                    return new SqlUtils(this._currentSelItem.conn, this._currentSelItem.dbType).getAllDatabase();
                 }
                 catch (Exception ex)
                 {
@@ -114,6 +167,7 @@ namespace SmallCoder
             {
                 this.BeginInvoke(new Action(() =>
                 {
+                    this.loadding = false;
                     this.cbDb.SelectedValueChanged -= new System.EventHandler(this.cbDb_SelectedValueChanged);
                     var list = t.Result;
                     cbDb.DataSource = list;
@@ -128,6 +182,12 @@ namespace SmallCoder
                             }
                             cbDb.SelectedIndex = list.IndexOf(this._currentSelItem.dbName);
                         }
+                        else
+                        {
+                            cbDb.SelectedIndex = 0;
+                            this._currentSelItem.dbName = list.First();
+                            Utils.writeToConfFile(this._appConfig);
+                        }
                     }
                     this.cbDb.SelectedValueChanged += new System.EventHandler(this.cbDb_SelectedValueChanged);
                     callback?.Invoke();
@@ -137,7 +197,12 @@ namespace SmallCoder
 
         private void bind_Table_DropdownList()
         {
-            if (string.IsNullOrWhiteSpace(cbDbCon.Text) || string.IsNullOrEmpty(cbDb.Text)) return;
+            this.loadding = true;
+            if (string.IsNullOrWhiteSpace(cbDbCon.Text) || string.IsNullOrEmpty(cbDb.Text))
+            {
+                this.loadding = false;
+                return;
+            }
 
             this.cbEntity.DataSource = null;
             var currentSelDb = cbDb.Text;
@@ -145,17 +210,20 @@ namespace SmallCoder
             {
                 try
                 {
-                    return new SqlUtils(this._currentSelItem.conn).getAllTable(currentSelDb);
+                    return new SqlUtils(this._currentSelItem.conn, this._currentSelItem.dbType).getAllTable(currentSelDb);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"获取数据表失败：{ex.Message}", "提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                return new List<string>();
+                return new List<TableInfo>();
             }).ContinueWith((t) =>
             {
                 this.BeginInvoke(new Action(() =>
                 {
+                    this.loadding = false;
+                    cbEntity.DisplayMember = nameof(TableInfo.table_name);
+                    cbEntity.ValueMember = nameof(TableInfo.table_name);
                     cbEntity.DataSource = t.Result;
                 }));
             });
@@ -166,7 +234,12 @@ namespace SmallCoder
         /// </summary>
         private void cbDbCon_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this._currentSelItem = this._appConfig.connections.FirstOrDefault(f => f.name == cbDbCon.Text) ?? new AppConnItem();
+            var appItemId = cbDbCon.SelectedValue?.ToString();
+            this._currentSelItem = this._appConfig.connections.FirstOrDefault(f => f.id == appItemId) ?? new AppConnItem();
+            this._appConfig.connections.ForEach(f => f.selected = false);
+            this._currentSelItem.selected = true;
+            Utils.writeToConfFile(this._appConfig);
+            this.sameRefreshDbAndTable();
         }
 
         /// <summary>
@@ -174,8 +247,11 @@ namespace SmallCoder
         /// </summary>
         private void cbDb_SelectedValueChanged(object sender, EventArgs e)
         {
-            this._currentSelItem.dbName = this.cbDb.Text.Trim();
-            Utils.writeToConfFile(this._appConfig);
+            if (!string.IsNullOrEmpty(this.cbDb.Text.Trim()))
+            {
+                this._currentSelItem.dbName = this.cbDb.Text.Trim();
+                Utils.writeToConfFile(this._appConfig);
+            }
             this.bind_Table_DropdownList();
         }
 
@@ -193,7 +269,7 @@ namespace SmallCoder
                 {
                     try
                     {
-                        dataColumns = new SqlUtils(this._currentSelItem.conn).getTableColumns(this._currentSelItem.dbName, selEntity);
+                        dataColumns = new SqlUtils(this._currentSelItem.conn, this._currentSelItem.dbType).getTableColumns(this._currentSelItem.dbName, selEntity);
                     }
                     catch (Exception ex)
                     {
@@ -231,12 +307,14 @@ namespace SmallCoder
             if (this.btn_Generate.Enabled == false) return;
             Dictionary<string, object> json = transformCustomJson(this._appConfig.customJson, out var _checkOk); if (!_checkOk) return;
 
+            this.RestStatusInfo("生成中...");
             var txtSpaceName = this.txtSpaceName.Text;
             var txtEntityCustome = this.txtEntityCustom.Text;
-            var txtTableName = this.cbEntity.Text.Trim();
+            var tableInfo = this.cbEntity.SelectedItem as TableInfo;
+            var txtTableName = tableInfo?.table_name.Trim();
+            var txtTableComment = tableInfo?.table_comment.Trim();
             var subTemplath = this.cbTemplate.Text.Trim();
             var subTemplateIsNotNull = !string.IsNullOrWhiteSpace(subTemplath);
-            var filterTemps = this.txtFilter.Text.Trim();
             var txtDesc = this.txtDesc.Text.Trim();
             var appendSpace = this.checkBox_AppendSpace.Checked;
 
@@ -245,24 +323,21 @@ namespace SmallCoder
             {
                 _SpaceName = txtSpaceName,
                 _TableName = txtTableName,
+                _TableComment = txtTableComment,
                 _EntityName = txtEntityCustome,
                 _Columns = dataColumns,
                 _Description = txtDesc,
                 _Model = json,
             };
+            this.label5.Focus();//让关于获取焦点
             this.btn_Generate.Enabled = false;
-            this.btn_Generate.Text = "生成中...";
+            this.btnClear.Enabled = false;
             Task.Run(() =>
             {
                 var generateingFile = string.Empty;
                 try
                 {
                     var allFiles = Utils.GetAllFiles(subTemplateIsNotNull ? $"\\{subTemplath}" : null);
-                    if (!string.IsNullOrWhiteSpace(filterTemps))
-                    {
-                        var filters = filterTemps.Split(new string[] { ";", "；" }, StringSplitOptions.RemoveEmptyEntries);
-                        allFiles = allFiles.Where(w => !filters.Any(f => f.EndsWith(w.OutFileName))).ToList();
-                    }
 
                     foreach (var item in allFiles)
                     {
@@ -296,17 +371,20 @@ namespace SmallCoder
             {
                 this.Invoke(new Action(() =>
                 {
-                    this.btn_Generate.Text = "生成";
-                    this.btn_Generate.Enabled = true;
-                }));
-                if (t.Result == true)
-                {
-                    var rstDig = MessageBox.Show("生成成功，是否打开目录", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2);
-                    if (rstDig == DialogResult.Yes)
+                    this.RestStatusInfo();
+
+                    if (t.Result == true)
                     {
-                        this.OpenOutputFolder(subTemplath);
+                        var rstDig = MessageBox.Show("生成成功，是否打开目录", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                        if (rstDig == DialogResult.Yes)
+                        {
+                            this.OpenOutputFolder(subTemplath);
+                        }
                     }
-                }
+
+                    this.btn_Generate.Enabled = true;
+                    this.btnClear.Enabled = true;
+                }));
             });
         }
 
@@ -316,7 +394,7 @@ namespace SmallCoder
         private void btnClear_Click(object sender, EventArgs e)
         {
             this.btnClear.Enabled = false;
-            this.btnClear.Text = "清理中...";
+            this.RestStatusInfo("清理中...");
             Task.Run(() =>
             {
                 Utils.DeleteDir(Utils._outPath);
@@ -325,7 +403,7 @@ namespace SmallCoder
                 this.Invoke(new Action(() =>
                 {
                     this.btnClear.Enabled = true;
-                    this.btnClear.Text = "清理";
+                    this.RestStatusInfo();
                 }));
             });
         }
@@ -391,8 +469,14 @@ namespace SmallCoder
 
         private void initRtbJson()
         {
-            this.rtbJson.AutoWordSelection = false;
-            if (this.rtbJson.Text != string.Empty) rtbJsonSwitchColor();
+            Task.Run(() =>
+            {
+                this.BeginInvoke(new Action(() =>
+                {
+                    this.rtbJson.AutoWordSelection = false;
+                    if (this.rtbJson.Text != string.Empty) rtbJsonSwitchColor();
+                }));
+            });
         }
 
         private void rtbJson_TextChanged(object sender, EventArgs e)
@@ -498,5 +582,11 @@ namespace SmallCoder
             about.ShowDialog();
         }
 
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+            Pen pen1 = new Pen(Color.LightGray, 1);
+            pen1.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            e.Graphics.DrawLine(pen1, 0, 0, this.panel1.Width, 0);
+        }
     }
 }

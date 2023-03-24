@@ -1,12 +1,6 @@
-﻿using Dapper;
-using MySql.Data.MySqlClient;
+﻿using SmallCoder.Extensions;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,6 +11,8 @@ namespace SmallCoder
         public DataConf()
         {
             InitializeComponent();
+            this.cb_dbType.Items.AddRange(new object[] { "MySql", "Oracle", "SqlServer" });
+            this.cb_dbType.SelectedIndex = 0;
             this.FormClosed += DataConf_FormClosed;
         }
 
@@ -26,6 +22,7 @@ namespace SmallCoder
         }
 
         private string _strSqlCon;
+        private DbType _dbType;
         private bool _testOk = false;
         private AppConfig _appConfig = new AppConfig();
 
@@ -36,15 +33,16 @@ namespace SmallCoder
             {
                 try
                 {
-                    using (var sqlCon = new MySqlConnection(this._strSqlCon))
+                    var isOk = new SqlUtils(this._strSqlCon, this._dbType).testConnection();
+                    if (isOk)
                     {
-                        sqlCon.Open();
-                        var rst = sqlCon.Query<int?>("SELECT 1;").FirstOrDefault();
-                        if (rst == 1)
-                        {
-                            this._testOk = true;
-                            MessageBox.Show("连接成功");
-                        }
+                        this._testOk = true;
+                        MessageBox.Show("连接成功");
+                    }
+                    else
+                    {
+                        this._testOk = false;
+                        MessageBox.Show("连接失败");
                     }
                 }
                 catch (Exception ex)
@@ -70,7 +68,8 @@ namespace SmallCoder
                     {
                         name = this.txtName.Text.Trim(),
                         dbName = this.txtDbName.Text.Trim(),
-                        conn = this.txt_Sql.Text.Trim()
+                        conn = this.txt_Sql.Text.Trim(),
+                        dbType = this.cb_dbType.Text.ToEnum<DbType>(),
                     });
                 }
                 else
@@ -134,6 +133,11 @@ namespace SmallCoder
                 this.writeToConfFile();
                 this.flushConfig();
             }
+        }
+
+        private void cb_dbType_SelectedValueChanged(object sender, EventArgs e)
+        {
+            this._dbType = this.cb_dbType.Text.ToEnum<DbType>();
         }
     }
 }

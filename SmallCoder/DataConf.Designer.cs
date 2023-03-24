@@ -40,11 +40,13 @@
             this.txtDbName = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
+            this.cb_dbType = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // txt_Sql
             // 
-            this.txt_Sql.Location = new System.Drawing.Point(83, 97);
+            this.txt_Sql.Location = new System.Drawing.Point(83, 135);
             this.txt_Sql.Name = "txt_Sql";
             this.txt_Sql.Size = new System.Drawing.Size(277, 21);
             this.txt_Sql.TabIndex = 1;
@@ -53,7 +55,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 101);
+            this.label1.Location = new System.Drawing.Point(12, 139);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(65, 12);
             this.label1.TabIndex = 1;
@@ -62,7 +64,7 @@
             // btnTest
             // 
             this.btnTest.Font = new System.Drawing.Font("宋体", 12F);
-            this.btnTest.Location = new System.Drawing.Point(83, 181);
+            this.btnTest.Location = new System.Drawing.Point(83, 216);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new System.Drawing.Size(86, 37);
             this.btnTest.TabIndex = 3;
@@ -73,7 +75,7 @@
             // btnSave
             // 
             this.btnSave.Font = new System.Drawing.Font("宋体", 12F);
-            this.btnSave.Location = new System.Drawing.Point(220, 181);
+            this.btnSave.Location = new System.Drawing.Point(220, 216);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(86, 37);
             this.btnSave.TabIndex = 4;
@@ -85,11 +87,11 @@
             // 
             this.cbDatabase.DisplayMember = "name";
             this.cbDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbDatabase.Font = new System.Drawing.Font("宋体", 10F);
+            this.cbDatabase.Font = new System.Drawing.Font("宋体", 11F);
             this.cbDatabase.FormattingEnabled = true;
             this.cbDatabase.Location = new System.Drawing.Point(83, 17);
             this.cbDatabase.Name = "cbDatabase";
-            this.cbDatabase.Size = new System.Drawing.Size(223, 21);
+            this.cbDatabase.Size = new System.Drawing.Size(222, 23);
             this.cbDatabase.TabIndex = 8;
             this.cbDatabase.TabStop = false;
             this.cbDatabase.ValueMember = "conn";
@@ -97,7 +99,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 21);
+            this.label4.Location = new System.Drawing.Point(12, 22);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(65, 12);
             this.label4.TabIndex = 9;
@@ -105,7 +107,7 @@
             // 
             // btnRemove
             // 
-            this.btnRemove.Location = new System.Drawing.Point(314, 16);
+            this.btnRemove.Location = new System.Drawing.Point(314, 17);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(46, 23);
             this.btnRemove.TabIndex = 10;
@@ -117,7 +119,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 141);
+            this.label3.Location = new System.Drawing.Point(12, 177);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(65, 12);
             this.label3.TabIndex = 7;
@@ -126,7 +128,7 @@
             // txtDbName
             // 
             this.txtDbName.Font = new System.Drawing.Font("宋体", 10F);
-            this.txtDbName.Location = new System.Drawing.Point(83, 136);
+            this.txtDbName.Location = new System.Drawing.Point(83, 172);
             this.txtDbName.Name = "txtDbName";
             this.txtDbName.Size = new System.Drawing.Size(277, 23);
             this.txtDbName.TabIndex = 2;
@@ -134,7 +136,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(24, 61);
+            this.label2.Location = new System.Drawing.Point(24, 101);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(53, 12);
             this.label2.TabIndex = 12;
@@ -143,16 +145,39 @@
             // txtName
             // 
             this.txtName.Font = new System.Drawing.Font("宋体", 10F);
-            this.txtName.Location = new System.Drawing.Point(83, 56);
+            this.txtName.Location = new System.Drawing.Point(83, 96);
             this.txtName.Name = "txtName";
             this.txtName.Size = new System.Drawing.Size(277, 23);
             this.txtName.TabIndex = 0;
+            // 
+            // cb_dbType
+            // 
+            this.cb_dbType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cb_dbType.Font = new System.Drawing.Font("宋体", 11F);
+            this.cb_dbType.FormattingEnabled = true;
+            this.cb_dbType.ItemHeight = 15;
+            this.cb_dbType.Location = new System.Drawing.Point(84, 57);
+            this.cb_dbType.Name = "cb_dbType";
+            this.cb_dbType.Size = new System.Drawing.Size(222, 23);
+            this.cb_dbType.TabIndex = 16;
+            this.cb_dbType.SelectedValueChanged += new System.EventHandler(this.cb_dbType_SelectedValueChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(24, 62);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(53, 12);
+            this.label5.TabIndex = 15;
+            this.label5.Text = "连接类型";
             // 
             // DataConf
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(378, 231);
+            this.ClientSize = new System.Drawing.Size(378, 270);
+            this.Controls.Add(this.cb_dbType);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtName);
             this.Controls.Add(this.btnRemove);
@@ -190,5 +215,7 @@
         private System.Windows.Forms.TextBox txtDbName;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtName;
+        private System.Windows.Forms.ComboBox cb_dbType;
+        private System.Windows.Forms.Label label5;
     }
 }

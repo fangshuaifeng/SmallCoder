@@ -3,6 +3,7 @@ using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Rendering;
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Media;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -52,6 +53,7 @@ namespace SmallCoder
             this.btnClose.MouseLeave += BtnClose_MouseLeave;
             this.btnClose.Click += BtnClose_Click;
             this.txtFind2.TextChanged += TxtFind2_TextChanged;
+            this.Paint += dropShadow;
 
             // 向上、向下查找
             HotKeyManager.AddFormControlHotKey(this.txtFind2, () => btnPrev_Click(null, null), Keys.Enter, true);
@@ -305,5 +307,11 @@ namespace SmallCoder
         }
 
         #endregion
+
+
+        private void dropShadow(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }

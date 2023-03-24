@@ -74,6 +74,7 @@ namespace SmallCoder
 
     public class AppConnItem
     {
+        public string id { get; set; } = Guid.NewGuid().ToString();
         /// <summary>
         /// 显示名称
         /// </summary>
@@ -90,5 +91,16 @@ namespace SmallCoder
         /// 默认选中
         /// </summary>
         public bool selected { get; set; }
+        /// <summary>
+        /// 数据库类型
+        /// </summary>
+        public DbType dbType { get; set; } = DbType.MySql;
+    }
+
+    public enum DbType
+    {
+        MySql = 0,
+        SqlServer = 1,
+        Oracle = 2,
     }
 }

@@ -62,6 +62,8 @@ namespace SmallCoder
 
             // --------------------左侧文件树---------------
             treeView_Files.KeyPress += (o, e) => { e.Handled = true; };// 清除提示音
+            // 回车打开文件进行编辑
+            HotKeyManager.AddFormControlHotKey(treeView_Files, openSelectedFileOnEditor, Keys.Enter);
             // 新增文件
             HotKeyManager.AddFormControlHotKey(treeView_Files, () => this.InsertFileOrFolder(false), Keys.N, true);
             // 新增文件（夹）
@@ -551,6 +553,14 @@ namespace SmallCoder
         /// </summary>
         private void treeView_Files_MouseDoubleClick(object sender, MouseEventArgs e)
         {
+            this.openSelectedFileOnEditor();
+        }
+
+        /// <summary>
+        /// 在编辑器中打开选中的文件
+        /// </summary>
+        private void openSelectedFileOnEditor()
+        {
             if (this.treeView_Files.SelectedNode == null) return;
             var fullPath = this.treeView_Files.SelectedNode.FullPath;
             var oldFullPath = Utils._tempPath + "\\" + fullPath;
@@ -566,8 +576,8 @@ namespace SmallCoder
                     var splitStr = fullPath.Split('.').Where(w => "." + w != Utils._tempFileSuffix).ToList();
                     var suffix = splitStr.Count == 1 ? Utils._defaultFileSuffix : "." + splitStr.Last();
 
-                    // 设置高亮语法
-                    _editor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(suffix);
+                    // 设置高亮语法，如果没有语法支持，默认使用Markdown
+                    _editor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(suffix) ?? HighlightingManager.Instance.GetDefinitionByExtension(".md");
                     foreach (var item in _customerHighlightingRules)
                     {
                         if (_editor.SyntaxHighlighting.MainRuleSet.Rules.Contains(item)) break;
@@ -602,7 +612,6 @@ namespace SmallCoder
                 TreeNode CurrentNode = this.treeView_Files.GetNodeAt(_clickPoint);
                 if (CurrentNode != null && CurrentNode.Bounds.Contains(_clickPoint.X, _clickPoint.Y))//判断是不是点在具体的节点上
                 {
-                    var oldFullPath = Utils._tempPath + "\\" + CurrentNode.FullPath;
                     treeView_Files.SelectedNode = CurrentNode;//选中这个节点
                 }
                 else
